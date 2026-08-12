@@ -62,6 +62,14 @@
     });
   });
 
+  document.querySelectorAll('[data-lightbox-trigger]').forEach(function (trigger) {
+    trigger.addEventListener('click', function () {
+      const slide = trigger.closest('.carousel-slide');
+      const img = slide ? slide.querySelector('img') : null;
+      if (img) openLightbox(img.src, img.alt);
+    });
+  });
+
   closeBtn.addEventListener('click', closeLightbox);
 
   lightbox.addEventListener('click', function (e) {
@@ -70,6 +78,78 @@
 
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && !lightbox.hidden) closeLightbox();
+  });
+})();
+
+// Carrossel da galeria (scroll nativo, sangrando à direita)
+(function () {
+  document.querySelectorAll('[data-carousel]').forEach(function (media) {
+    const track = media.querySelector('.carousel-track');
+    const slides = media.querySelectorAll('.carousel-slide');
+    const prevBtn = media.querySelector('[data-carousel-prev]');
+    const nextBtn = media.querySelector('[data-carousel-next]');
+    const bleed = media.closest('.galeria-bleed');
+
+    if (!track || slides.length < 2 || !prevBtn || !nextBtn) return;
+
+    function sizeTrack() {
+      const bleedRect = bleed.getBoundingClientRect();
+      const gutter = parseFloat(getComputedStyle(bleed).paddingLeft) || 0;
+      const available = bleedRect.width - gutter;
+      const cardWidth = window.innerWidth <= 640
+        ? available - gutter * 0.5
+        : available * 0.62;
+
+      slides.forEach(function (slide) {
+        slide.style.width = cardWidth + 'px';
+      });
+
+      const peekWidth = Math.max(available - cardWidth, 24);
+      track.style.paddingRight = peekWidth + 'px';
+
+      prevBtn.style.left = '16px';
+      prevBtn.style.right = 'auto';
+      nextBtn.style.right = (peekWidth + 16) + 'px';
+      nextBtn.style.left = 'auto';
+    }
+
+    function getStep() {
+      const gap = parseFloat(getComputedStyle(track).columnGap) || 0;
+      return slides[0].getBoundingClientRect().width + gap;
+    }
+
+    function scrollByStep(direction) {
+      const step = getStep() * direction;
+      const maxScroll = track.scrollWidth - track.clientWidth;
+      let target = track.scrollLeft + step;
+
+      if (target > maxScroll - 2) target = 0;
+      else if (target < 0) target = maxScroll;
+
+      track.scrollTo({ left: target, behavior: 'smooth' });
+    }
+
+    prevBtn.addEventListener('click', function () { scrollByStep(-1); });
+    nextBtn.addEventListener('click', function () { scrollByStep(1); });
+
+    let timer = null;
+
+    function start() {
+      stop();
+      timer = setInterval(function () { scrollByStep(1); }, 4000);
+    }
+
+    function stop() {
+      if (timer) clearInterval(timer);
+    }
+
+    media.addEventListener('mouseenter', stop);
+    media.addEventListener('mouseleave', start);
+
+    window.addEventListener('resize', sizeTrack);
+
+    sizeTrack();
+    start();
   });
 })();
 
