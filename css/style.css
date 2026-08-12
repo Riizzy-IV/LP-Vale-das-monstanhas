@@ -53,15 +53,23 @@
 html {
   scroll-behavior: smooth;
   scroll-padding-top: var(--header-height-mobile);
+  overflow-x: hidden;
+  max-width: 100%;
 }
 
 body {
+  position: relative;
+  width: 100%;
   margin: 0;
   overflow-x: hidden;
   font-family: var(--font-primary);
   background-color: var(--color-bg-dark);
   color: var(--color-text);
   -webkit-font-smoothing: antialiased;
+}
+
+main {
+  overflow-x: hidden;
 }
 
 img {
@@ -561,8 +569,8 @@ button {
   background-color: var(--color-bg-dark);
   background-image: url('../assets/img/sobre-bg.jpg');
   background-repeat: no-repeat;
-  background-position: center;
-  background-size: 100% 100%;
+  background-position: center bottom;
+  background-size: cover;
 }
 
 .sobre-container {
@@ -826,6 +834,7 @@ button {
    ========================================================================== */
 
 .galeria {
+  overflow-x: hidden;
   padding-block: clamp(56px, 8vw, 100px);
   background-color: var(--color-cream);
 }
@@ -838,9 +847,7 @@ button {
 
 .galeria-bleed {
   position: relative;
-  width: 100vw;
-  margin-left: 50%;
-  transform: translateX(-50%);
+  width: 100%;
   padding-left: clamp(20px, 9.55vw, 183px);
   padding-right: 0;
 }
@@ -1541,7 +1548,7 @@ button {
 
 .lazer-banner {
   width: 100%;
-  margin-bottom: clamp(-220px, -14vw, -110px);
+  margin-bottom: clamp(-220px, -14vw, -10px);
 }
 
 .lazer-banner img {
@@ -1686,6 +1693,8 @@ button {
 
 .localizacao-banner {
   position: relative;
+  display: flex;
+  flex-direction: column;
   width: 100%;
   margin-bottom: clamp(32px, 4.5vw, 56px);
 }
@@ -1697,11 +1706,26 @@ button {
 }
 
 .localizacao-banner .localizacao-container {
-  position: absolute;
-  inset: 0;
+  position: static;
+  order: -1;
   display: flex;
   align-items: flex-start;
-  padding-top: clamp(64px, 7vw, 96px);
+  background-color: var(--color-bg-dark);
+  padding-block: clamp(24px, 6vw, 48px) clamp(24px, 4vw, 40px);
+}
+
+@media (min-width: 700px) {
+  .localizacao-banner {
+    display: block;
+  }
+
+  .localizacao-banner .localizacao-container {
+    position: absolute;
+    inset: 0;
+    order: initial;
+    background-color: transparent;
+    padding-block: clamp(64px, 7vw, 96px) 0;
+  }
 }
 
 .localizacao-container {
@@ -1749,15 +1773,18 @@ button {
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
 }
 
-.localizacao-map img {
-  width: 100%;
-  height: auto;
+.localizacao-map iframe {
   display: block;
+  width: 100%;
+  max-width: 100%;
+  height: clamp(320px, 40vw, 560px);
+  border: 0;
 }
 
 .localizacao-map-actions {
   position: absolute;
   top: 20px;
+  left: 20px;
   right: 20px;
   display: flex;
   flex-wrap: wrap;
