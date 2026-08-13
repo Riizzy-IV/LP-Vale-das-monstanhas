@@ -33,6 +33,38 @@
   });
 })();
 
+// Menu ativo conforme a seção visível (scrollspy)
+(function () {
+  const links = document.querySelectorAll('.menu-itens ul a[href^="#"]');
+  if (!links.length) return;
+
+  const sections = Array.from(links)
+    .map(function (link) { return document.querySelector(link.getAttribute('href')); })
+    .filter(Boolean);
+
+  if (!sections.length) return;
+
+  const header = document.getElementById('site-header');
+  const headerHeight = header ? header.offsetHeight : 0;
+
+  function setActive(id) {
+    links.forEach(function (link) {
+      link.classList.toggle('active', link.getAttribute('href') === '#' + id);
+    });
+  }
+
+  const observer = new IntersectionObserver(function (entries) {
+    entries.forEach(function (entry) {
+      if (entry.isIntersecting) setActive(entry.target.id);
+    });
+  }, {
+    rootMargin: '-' + (headerHeight + 1) + 'px 0px -70% 0px',
+    threshold: 0
+  });
+
+  sections.forEach(function (section) { observer.observe(section); });
+})();
+
 // Lightbox da galeria
 (function () {
   const lightbox = document.getElementById('lightbox');
@@ -190,18 +222,52 @@
   const tabs = document.querySelectorAll('.planta-tab');
   const prevBtn = document.querySelector('[data-planta-prev]');
   const nextBtn = document.querySelector('[data-planta-next]');
+  const card = document.querySelector('.planta-card');
 
-  if (!track || !tabs.length) return;
+  if (!track || !tabs.length || !card) return;
+
+  const dormsEl = card.querySelector('[data-field="dorms"]');
+  const tipoEl = card.querySelector('[data-field="tipo"]');
+  const metragemEl = card.querySelector('[data-field="metragem"]');
+  const vagaEl = card.querySelector('[data-field="vaga"]');
+  const featuresEl = card.querySelector('[data-field="features"]');
+  const imageEl = card.querySelector('[data-field="image"]');
+
+  function applyTab(tab) {
+    if (tipoEl) tipoEl.textContent = tab.dataset.tipo;
+    if (metragemEl) metragemEl.textContent = tab.dataset.metragem;
+    if (vagaEl) vagaEl.textContent = tab.dataset.vaga;
+
+    if (imageEl && tab.dataset.img) {
+      imageEl.src = tab.dataset.img;
+      imageEl.alt = tab.dataset.alt || '';
+    }
+
+    if (featuresEl && tab.dataset.features) {
+      const items = tab.dataset.features.split(',');
+      featuresEl.innerHTML = items.map(function (item) {
+        return '<li><img src="assets/icons/check-mark.svg" alt="">' + item + '</li>';
+      }).join('');
+    }
+  }
+
+  function setTabIcon(tab, isActive) {
+    const icon = tab.querySelector('img');
+    if (icon) icon.src = 'assets/icons/plan-icon-' + (isActive ? 'active' : 'outline') + '.svg';
+  }
 
   tabs.forEach(function (tab) {
     tab.addEventListener('click', function () {
       tabs.forEach(function (t) {
         t.classList.remove('is-active');
         t.setAttribute('aria-selected', 'false');
+        setTabIcon(t, false);
       });
       tab.classList.add('is-active');
       tab.setAttribute('aria-selected', 'true');
+      setTabIcon(tab, true);
       tab.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+      applyTab(tab);
     });
   });
 
